@@ -273,6 +273,11 @@ export default function AVCommandAssistant() {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("chat");
   const bottomRef = useRef(null);
+  useEffect(() => {
+  if (window.location.hash === "#downloads") {
+    setActiveTab("resources");
+  }
+}, []);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
