@@ -1,11 +1,29 @@
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '1mb',
+    },
+  },
+};
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { licenseKey } = req.body;
+  let licenseKey;
+  try {
+    if (typeof req.body === "string") {
+      const parsed = JSON.parse(req.body);
+      licenseKey = parsed.licenseKey;
+    } else {
+      licenseKey = req.body?.licenseKey;
+    }
+  } catch {
+    licenseKey = req.body?.licenseKey;
+  }
 
-  if (!licenseKey) {
+  if (!licenseKey || !licenseKey.trim()) {
     return res.status(400).json({ error: "License key required" });
   }
 
@@ -22,13 +40,9 @@ export default async function handler(req, res) {
     });
 
     const data = await response.json();
-    console.log("Gumroad response:", JSON.stringify(data));
 
     if (data.success) {
-      return res.status(200).json({
-        valid: true,
-        email: data.purchase?.email || "",
-      });
+      return res.status(200).json({ valid: true, email: data.purchase?.email || "" });
     } else {
       return res.status(200).json({
         valid: false,
@@ -36,7 +50,6 @@ export default async function handler(req, res) {
       });
     }
   } catch (err) {
-    console.error("License verify error:", err);
     return res.status(500).json({ error: "Verification failed: " + err.message });
   }
 }
