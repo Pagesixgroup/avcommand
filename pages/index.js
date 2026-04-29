@@ -360,8 +360,9 @@ export default function AVCommandAssistant() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: newMessages.map(m => ({ role: m.role, content: m.content }))
-        })
+  messages: newMessages.map(m => ({ role: m.role, content: m.content })),
+  licenseKey: localStorage.getItem("avc_license") || ""
+})
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
