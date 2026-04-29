@@ -349,18 +349,23 @@ export default function AVCommandAssistant() {
         </div>
       </div>
 
-      {/* Tabs */}
-      <div style={{ display: "flex", borderBottom: "1px solid #1a1a1a", background: "#0a0a0a", flexShrink: 0 }}>
-        {[["chat", "▸ AI Assistant"], ["resources", "⬇ Downloads"]].map(([key, label]) => (
-          <button key={key} className="tab-btn" onClick={() => setActiveTab(key)} style={{
-            padding: "12px 24px", background: "none", border: "none", cursor: "pointer",
-            fontSize: 10, letterSpacing: 3, textTransform: "uppercase",
-            color: activeTab === key ? "#00ff88" : "#555",
-            borderBottom: activeTab === key ? "2px solid #00ff88" : "2px solid transparent",
-            transition: "all 0.15s", fontFamily: "'Courier New', monospace"
-          }}>{label}</button>
-        ))}
-      </div>
+  {/* Tabs */}
+<div style={{ display: "flex", borderBottom: "1px solid #1a1a1a", background: "#0a0a0a", flexShrink: 0 }}>
+  <button className="tab-btn" onClick={() => setActiveTab("resources")} style={{
+    padding: "12px 24px", background: "none", border: "none", cursor: "pointer",
+    fontSize: 10, letterSpacing: 3, textTransform: "uppercase",
+    color: activeTab === "resources" ? "#00ff88" : "#555",
+    borderBottom: activeTab === "resources" ? "2px solid #00ff88" : "2px solid transparent",
+    transition: "all 0.15s", fontFamily: "'Courier New', monospace"
+  }}>⬇ Downloads</button>
+  <a href="https://pageflux21.gumroad.com/l/AVCommandPro" target="_blank" style={{
+    padding: "12px 24px", background: "none", border: "none", cursor: "pointer",
+    fontSize: 10, letterSpacing: 3, textTransform: "uppercase", textDecoration: "none",
+    color: "#444", borderBottom: "2px solid transparent",
+    transition: "all 0.15s", fontFamily: "'Courier New', monospace",
+    display: "flex", alignItems: "center", gap: 6
+  }}>🔒 AI Assistant <span style={{fontSize:8, color:"#00ff88", border:"1px solid rgba(0,255,136,0.3)", padding:"2px 6px", borderRadius:10, letterSpacing:2}}>PRO</span></a>
+</div>
 
       {/* Chat Tab */}
       {activeTab === "chat" && (
