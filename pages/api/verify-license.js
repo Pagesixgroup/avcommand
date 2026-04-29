@@ -2,15 +2,8 @@ export default async function handler(req, res) {
   const key = req.body?.licenseKey;
 
   if (!key) {
-    return res.status(400).json({ 
-      error: "License key required",
-      hasBody: !!req.body,
-      bodyKeys: req.body ? Object.keys(req.body) : [],
-      rawBody: JSON.stringify(req.body)
-    });
+    return res.status(400).json({ error: "License key required" });
   }
-
-  const hasToken = !!process.env.GUMROAD_ACCESS_TOKEN;
 
   try {
     const response = await fetch("https://api.gumroad.com/v2/licenses/verify", {
@@ -31,8 +24,7 @@ export default async function handler(req, res) {
     } else {
       return res.status(200).json({
         valid: false,
-        error: data.message || "Invalid license key",
-        hasToken,
+        error: data.message || "Invalid license key. Check your key and try again.",
       });
     }
   } catch (err) {
