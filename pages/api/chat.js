@@ -65,4 +65,26 @@ Be concise but thorough. Use technical language appropriate for professional AV 
       headers: {
         "Content-Type": "application/json",
         "x-api-key": process.env.ANTHROPIC_API_KEY,
-        "ant
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 1000,
+        system: SYSTEM_PROMPT,
+        messages,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      return res.status(response.status).json({ error: error.error?.message || "API error" });
+    }
+
+    const data = await response.json();
+    const reply = data.content?.find((b) => b.type === "text")?.text || "No response received.";
+    return res.status(200).json({ reply });
+
+  } catch (err) {
+    return res.status(500).json({ error: "Internal server error" });
+  }
+}
