@@ -63,7 +63,7 @@ export default function BlogIndex({ posts }) {
                   <h2 style={{ fontSize: 17, color: '#fff', marginBottom: 8, fontWeight: 600, lineHeight: 1.4, letterSpacing: 0.5 }}>{post.title}</h2>
                   <p style={{ fontSize: 13, color: '#555', lineHeight: 1.65, marginBottom: 14 }}>{post.description}</p>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <span style={{ fontSize: 10, color: '#333', letterSpacing: 2, textTransform: 'uppercase' }}>{new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                    <span style={{ fontSize: 10, color: '#333', letterSpacing: 2, textTransform: 'uppercase' }}>{post.date}</span>
                     <span style={{ fontSize: 10, color: '#00ff88', letterSpacing: 2, textTransform: 'uppercase' }}>Read →</span>
                   </div>
                 </div>
@@ -80,4 +80,3 @@ export async function getStaticProps() {
   const posts = getAllPosts();
   return { props: { posts } };
 }
-
