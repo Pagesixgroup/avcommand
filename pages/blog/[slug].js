@@ -9,7 +9,7 @@ function renderMarkdown(content) {
   let key = 0;
 
   while (i < lines.length) {
-    const line = lines[i];
+    const line = lines[i] || '';
 
     // HR
     if (line.match(/^---+$/)) {
