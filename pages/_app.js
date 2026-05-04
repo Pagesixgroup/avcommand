@@ -1,15 +1,13 @@
 import '../styles/globals.css'
 import Head from 'next/head'
 import { useEffect } from 'react'
+import { Analytics } from '@vercel/analytics/next'
 
 export default function App({ Component, pageProps }) {
   useEffect(() => {
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').then(
-          (reg) => console.log('SW registered:', reg.scope),
-          (err) => console.log('SW registration failed:', err)
-        )
+        navigator.serviceWorker.register('/sw.js')
       })
     }
   }, [])
@@ -27,15 +25,10 @@ export default function App({ Component, pageProps }) {
         <link rel="manifest" href="/manifest.json" />
         <link rel="icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/icons/icon-152.png" />
-        <link rel="apple-touch-icon" sizes="72x72" href="/icons/icon-72.png" />
-        <link rel="apple-touch-icon" sizes="96x96" href="/icons/icon-96.png" />
-        <link rel="apple-touch-icon" sizes="128x128" href="/icons/icon-128.png" />
-        <link rel="apple-touch-icon" sizes="144x144" href="/icons/icon-144.png" />
-        <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152.png" />
-        <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192.png" />
         <title>AVCommand — AV Control Assistant</title>
       </Head>
       <Component {...pageProps} />
+      <Analytics />
     </>
   )
 }
