@@ -713,6 +713,7 @@
     <li><a href="#download">Free Download</a></li>
     <li><a href="#pricing">Pricing</a></li>
     <li><a href="https://av-command.com/blog" target="_blank">Blog</a></li>
+    <li><a href="#newsletter">Newsletter</a></li>
     <li><a href="https://av-command.com/#downloads" target="_blank" class="nav-cta">Launch App</a></li>
   </ul>
 </nav>
@@ -903,6 +904,71 @@
 </section>
 
 <div class="divider"></div>
+
+
+<div class="divider"></div>
+
+<!-- NEWSLETTER -->
+<section class="section" id="newsletter">
+  <p class="section-label">Stay Updated</p>
+  <h2 class="section-title">The AV Control Newsletter</h2>
+  <p class="section-desc">Monthly RS-232 tips, device command references, and AV integration guides. Free. No spam.</p>
+
+  <div style="max-width: 480px;">
+    <div id="nl-form" style="display:flex; gap:10px; flex-wrap:wrap;">
+      <input
+        type="email"
+        id="nl-email"
+        placeholder="your@email.com"
+        style="flex:1; min-width:220px; padding:13px 16px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:#e0e0e0; font-size:13px; font-family:'Courier New',monospace; outline:none;"
+      />
+      <button
+        onclick="subscribeNewsletter()"
+        style="padding:13px 24px; background:#00ff88; color:#000; border:none; border-radius:8px; cursor:pointer; font-family:'Courier New',monospace; font-size:11px; letter-spacing:2px; text-transform:uppercase; font-weight:700; white-space:nowrap;"
+      >Subscribe Free</button>
+    </div>
+    <div id="nl-success" style="display:none; padding:14px 16px; background:rgba(0,255,136,0.08); border:1px solid rgba(0,255,136,0.25); border-radius:8px; font-family:'Courier New',monospace; font-size:12px; color:#00ff88; letter-spacing:1px; margin-top:10px;">
+      ✓ You're subscribed! Check your inbox for a confirmation email.
+    </div>
+    <div id="nl-error" style="display:none; padding:14px 16px; background:rgba(255,80,80,0.08); border:1px solid rgba(255,80,80,0.25); border-radius:8px; font-family:'Courier New',monospace; font-size:12px; color:#ff5555; letter-spacing:1px; margin-top:10px;"></div>
+    <p style="margin-top:12px; font-family:'Courier New',monospace; font-size:9px; color:#333; letter-spacing:2px; text-transform:uppercase;">No spam ever · Unsubscribe anytime · Free forever</p>
+  </div>
+</section>
+
+<script>
+async function subscribeNewsletter() {
+  const email = document.getElementById('nl-email').value.trim();
+  const success = document.getElementById('nl-success');
+  const error = document.getElementById('nl-error');
+  success.style.display = 'none';
+  error.style.display = 'none';
+
+  if (!email || !email.includes('@')) {
+    error.textContent = 'Please enter a valid email address.';
+    error.style.display = 'block';
+    return;
+  }
+
+  try {
+    const res = await fetch('https://av-command.com/api/newsletter', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('nl-form').style.display = 'none';
+      success.style.display = 'block';
+    } else {
+      error.textContent = data.error || 'Something went wrong. Please try again.';
+      error.style.display = 'block';
+    }
+  } catch (e) {
+    error.textContent = 'Connection error. Please try again.';
+    error.style.display = 'block';
+  }
+}
+</script>
 
 <!-- FOOTER -->
 <footer>
