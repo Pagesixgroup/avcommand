@@ -432,6 +432,8 @@ export default function AVCommandAssistant() {
           transition: "all 0.15s", fontFamily: "'Courier New', monospace",
           display: "flex", alignItems: "center", gap: 6
         }}>{licensed ? "▸ AI Assistant" : "🔒 AI Assistant"} {!licensed && <span style={{fontSize:8, color:"#00ff88", border:"1px solid rgba(0,255,136,0.3)", padding:"2px 6px", borderRadius:10, letterSpacing:2}}>PRO</span>}</button>
+        <a href="/blog" target="_blank" style={{ padding: "12px 20px", fontSize: 10, letterSpacing: 3, textTransform: "uppercase", textDecoration: "none", color: "#444", borderBottom: "2px solid transparent", fontFamily: "'Courier New', monospace", whiteSpace: "nowrap", display: "flex", alignItems: "center" }}>📝 Blog</a>
+        <a href="/landing.html#newsletter" target="_blank" style={{ padding: "12px 20px", fontSize: 10, letterSpacing: 3, textTransform: "uppercase", textDecoration: "none", color: "#444", borderBottom: "2px solid transparent", fontFamily: "'Courier New', monospace", whiteSpace: "nowrap", display: "flex", alignItems: "center" }}>✉ Newsletter</a>
       </div>
 
       {/* Chat Tab */}
@@ -540,6 +542,17 @@ export default function AVCommandAssistant() {
           </div>
         </div>
       )}
+
+      {/* Footer */}
+      <div style={{ padding: "12px 20px", borderTop: "1px solid #1a1a1a", background: "#0a0a0a", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8, flexShrink: 0 }}>
+        <div style={{ display: "flex", gap: 20, flexWrap: "wrap" }}>
+          <a href="/blog" target="_blank" style={{ fontSize: 9, letterSpacing: 2, color: "#444", textDecoration: "none", textTransform: "uppercase", fontFamily: "'Courier New', monospace" }}>Blog</a>
+          <a href="/landing.html#newsletter" target="_blank" style={{ fontSize: 9, letterSpacing: 2, color: "#444", textDecoration: "none", textTransform: "uppercase", fontFamily: "'Courier New', monospace" }}>Newsletter</a>
+          <a href="mailto:hello@av-command.com" style={{ fontSize: 9, letterSpacing: 2, color: "#444", textDecoration: "none", textTransform: "uppercase", fontFamily: "'Courier New', monospace" }}>Contact</a>
+          <a href="/landing.html" target="_blank" style={{ fontSize: 9, letterSpacing: 2, color: "#444", textDecoration: "none", textTransform: "uppercase", fontFamily: "'Courier New', monospace" }}>About</a>
+        </div>
+        <div style={{ fontSize: 9, letterSpacing: 2, color: "#222", textTransform: "uppercase", fontFamily: "'Courier New', monospace" }}>⚡ AVCommand</div>
+      </div>
     </div>
   );
 }
