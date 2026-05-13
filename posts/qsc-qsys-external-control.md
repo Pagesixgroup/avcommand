@@ -1,146 +1,176 @@
 ---
-title: "Biamp Tesira RS-232 and Telnet Control: Complete Command Reference"
-slug: "biamp-tesira-rs232-commands"
+title: "QSC Q-SYS External Control Protocol: RS-232 and TCP Commands for AV Integrators"
+slug: "qsc-qsys-external-control"
 date: "May 13, 2026"
-description: "Complete Biamp Tesira serial and Telnet control reference for AV integrators. Device attribute commands, instance tags, feedback parsing, and Crestron SIMPL+ examples."
-tags: ["Biamp", "Tesira", "RS-232", "Telnet", "DSP", "Crestron"]
+description: "Complete QSC Q-SYS external control guide for AV integrators. TCP and RS-232 commands, Named Control protocol, feedback handling, and Crestron integration examples."
+tags: ["QSC", "Q-SYS", "RS-232", "TCP", "DSP", "Crestron", "External Control"]
 ---
 
-Biamp Tesira DSPs are among the most common audio processors in commercial AV, and their control protocol is one of the more unusual ones integrators encounter. Unlike Extron's plain ASCII SIS or Sony's binary HEX, Tesira uses a text-based command language built around instance tags and attribute codes — the same model whether you're communicating over RS-232 or Telnet.
+QSC Q-SYS is one of the most capable DSP platforms in commercial AV, and its external control protocol is well-designed once you understand the model. Like Biamp Tesira, Q-SYS uses a named control system — you reference controls by the names assigned in Q-SYS Designer rather than fixed command bytes. This makes the protocol flexible but requires coordination between the Q-SYS designer and the control system programmer.
 
-This guide covers the command structure, the most commonly used commands, feedback handling, and Crestron SIMPL+ implementation patterns.
-
----
-
-## Serial Port Settings
-
-| Parameter | Value |
-|---|---|
-| Baud Rate | 115200 |
-| Data Bits | 8 |
-| Parity | None |
-| Stop Bits | 1 |
-| Flow Control | None |
-| Terminator | Line Feed (0x0A) |
-
-**Important:** Tesira uses Line Feed (LF, 0x0A) as the command terminator — not the Carriage Return (0x0D) that most AV devices use. Sending CR instead of LF means commands will never execute. This is the single most common Tesira integration mistake.
-
-**Telnet:** Port 23. The command syntax is identical over Telnet and RS-232. Most installations use Telnet since Tesira devices are always on the network anyway.
+This guide covers the External Control Protocol, TCP and RS-232 setup, Named Control commands, feedback, and Crestron implementation.
 
 ---
 
-## Command Structure
+## Connection Methods
 
-Tesira commands follow this format:
+Q-SYS supports two external control methods:
 
+**TCP (recommended):** Port 1710. Connect to the Core's IP address on port 1710. The External Control Protocol runs over this TCP connection. This is the standard method for control system integration.
+
+**RS-232:** Available on Q-SYS I/O frames and some peripherals, not directly on the Core. For controlling the Core via serial, use a serial-to-TCP converter or program a Q-SYS Lua script to bridge the serial port to Named Controls internally.
+
+Most Q-SYS integrations use TCP directly to the Core.
+
+---
+
+## Protocol: JSON-RPC
+
+Q-SYS External Control Protocol uses JSON-RPC 2.0. Commands are JSON objects sent over TCP with a newline terminator. Responses are also JSON.
+
+This is different from most AV protocols — you are sending formatted JSON strings, not simple ASCII commands or HEX bytes.
+
+---
+
+## Authentication (if required)
+
+If Q-SYS Designer has PIN code enabled:
+
+```json
+{"jsonrpc":"2.0","method":"Logon","params":{"User":"","Password":"1234"},"id":1}
 ```
-INSTANCETAG set/get ATTRIBUTECODE [INDEX1] [INDEX2] [VALUE]
+
+Response on success:
+```json
+{"jsonrpc":"2.0","result":{"Platform":"Core 110f","State":"Active","DesignName":"MyDesign","DesignCode":"abc123","IsRedundant":false,"IsEmulator":false},"id":1}
 ```
-
-- **INSTANCETAG** — the name assigned to the block in Tesira software (e.g. "LevelControl1")
-- **set/get** — set changes a value, get retrieves it
-- **ATTRIBUTECODE** — the parameter to control (level, mute, minLevel, etc.)
-- **INDEX1, INDEX2** — channel indexes, starting from 1
-- **VALUE** — the value to set (for set commands only)
-
-Success response: `+OK`
-Error response: `! "message":"error description"`
 
 ---
 
-## Level Control
+## Named Control — Get Value
 
-| Function | Command |
-|---|---|
-| Set channel 1 to -10 dB | `LevelControl1 set level 1 1 -10.0` |
-| Get channel 1 level | `LevelControl1 get level 1 1` |
-| Get minimum level | `LevelControl1 get minLevel 1 1` |
-| Get maximum level | `LevelControl1 get maxLevel 1 1` |
+```json
+{"jsonrpc":"2.0","method":"Control.Get","params":["MyGainControl"],"id":2}
+```
 
-Level values are floating point dB. Response format: `+OK "value":-10.0`
+Response:
+```json
+{"jsonrpc":"2.0","result":[{"Name":"MyGainControl","String":"-10.0 dB","Value":-10.0,"Position":0.65}],"id":2}
+```
+
+The Value field is the numeric value. String is the formatted display string. Position is 0.0 to 1.0 representing the control's range.
+
+---
+
+## Named Control — Set Value
+
+Set by value (dB for gain controls):
+```json
+{"jsonrpc":"2.0","method":"Control.Set","params":{"Name":"MyGainControl","Value":-15.0},"id":3}
+```
+
+Set by position (0.0 to 1.0):
+```json
+{"jsonrpc":"2.0","method":"Control.Set","params":{"Name":"MyGainControl","Position":0.5},"id":3}
+```
+
+Set by string (for controls that accept text):
+```json
+{"jsonrpc":"2.0","method":"Control.Set","params":{"Name":"SourceSelect","String":"Input 2"},"id":3}
+```
 
 ---
 
 ## Mute Control
 
-| Function | Command |
-|---|---|
-| Mute channel 1 | `MuteControl1 set mute 1 1 true` |
-| Unmute channel 1 | `MuteControl1 set mute 1 1 false` |
-| Get mute state | `MuteControl1 get mute 1 1` |
-| Toggle mute | `MuteControl1 toggle mute 1 1` |
+Q-SYS mute controls use a value of 1.0 for muted and 0.0 for unmuted:
 
-Response: `+OK "value":true`
+Mute on:
+```json
+{"jsonrpc":"2.0","method":"Control.Set","params":{"Name":"MyMuteControl","Value":1},"id":4}
+```
+
+Mute off:
+```json
+{"jsonrpc":"2.0","method":"Control.Set","params":{"Name":"MyMuteControl","Value":0},"id":4}
+```
 
 ---
 
-## Router / Matrix Crosspoint
+## Change Group Feedback (Poll or Push)
 
-| Function | Command |
-|---|---|
-| Route input 1 to output 1 | `RouterControl1 set crossPointOn 1 1 true` |
-| Remove crosspoint | `RouterControl1 set crossPointOn 1 1 false` |
-| Get crosspoint state | `RouterControl1 get crossPointOn 1 1` |
+Q-SYS supports both polling and push feedback through Change Groups.
+
+**Create a change group:**
+```json
+{"jsonrpc":"2.0","method":"ChangeGroup.AddControl","params":{"Id":"MyGroup","Controls":["MyGainControl","MyMuteControl"]},"id":5}
+```
+
+**Poll the group (get all changes since last poll):**
+```json
+{"jsonrpc":"2.0","method":"ChangeGroup.Poll","params":{"Id":"MyGroup"},"id":6}
+```
+
+**Auto-poll (push on change):**
+```json
+{"jsonrpc":"2.0","method":"ChangeGroup.AutoPoll","params":{"Id":"MyGroup","Rate":0.2},"id":7}
+```
+
+Rate is in seconds. 0.2 means push changes up to 5 times per second.
+
+Push response when a control changes:
+```json
+{"jsonrpc":"2.0","method":"ChangeGroup.Poll","result":{"Id":"MyGroup","Changes":[{"Name":"MyMuteControl","String":"On","Value":1.0,"Position":1.0}]}}
+```
 
 ---
 
-## Source Selector
+## No-Op (Keepalive)
 
-| Function | Command |
-|---|---|
-| Select source 2 | `SourceSelector1 set sourceSelection 1 2` |
-| Get current source | `SourceSelector1 get sourceSelection 1` |
+Q-SYS closes TCP connections after 30 seconds of inactivity. Send a periodic No-Op to keep the connection alive:
 
----
-
-## Feedback Subscription
-
-Tesira supports push feedback without polling. Subscribe to an attribute and the device sends changes automatically.
-
-```
-SUBSCRIBE MuteControl1 mute 1 1 "MuteToken" 0
+```json
+{"jsonrpc":"2.0","method":"NoOp","params":{},"id":99}
 ```
 
-When the mute state changes, Tesira pushes:
-```
-! MuteToken "value":true
-```
-
-The publish token is any string you define — use it to identify which attribute the feedback belongs to when parsing. To unsubscribe: `UNSUBSCRIBE MuteControl1 mute 1 1 "MuteToken"`
+Send this every 15-20 seconds from your control system.
 
 ---
 
 ## Crestron SIMPL+ Notes
 
-Set your COM port to 115200 baud with LF terminator (0x0A). Store instance tags as string parameters so they can be configured per project without recompiling.
+In SIMPL+, open a TCP client socket to the Q-SYS Core IP address on port 1710. Use BUFFER_INPUT with 0x0A (newline) as the GATHER terminator. Build JSON strings by concatenation — there is no native JSON library in SIMPL+, so construct the strings manually.
 
-Use GATHER with 0x0A as the terminator to collect complete response lines. Parse the first character — `+` means success, `!` means error or unsolicited feedback. Send SUBSCRIBE commands during module initialization after connection is established.
+Send the No-Op command in a recurring event (every 15 seconds) to maintain the connection. Use AutoPoll for efficient feedback rather than polling on a timer.
+
+Store Named Control names as string parameters so they can be configured per project.
 
 ---
 
 ## Common Mistakes
 
-- **Using CR (0x0D) instead of LF (0x0A)** — the single most common Tesira control issue
-- **Wrong instance tag case** — "levelcontrol1" will not match "LevelControl1" — instance tags are case sensitive
-- **Forgetting index parameters** — required even for single-channel blocks
-- **Not handling Telnet negotiation bytes** — Tesira sends option negotiation on connect; your code needs to ignore these
-- **Polling instead of subscribing** — subscription-based feedback is more efficient and faster
+- **Wrong port** — Q-SYS External Control is port 1710, not the default Telnet port 23
+- **No keepalive** — connections drop after 30 seconds without a No-Op. This is the most common Q-SYS integration reliability issue
+- **Wrong control names** — Named Controls are defined in Q-SYS Designer. The programmer and designer must agree on naming conventions before programming begins
+- **JSON formatting errors** — malformed JSON is silently ignored. Validate your JSON strings carefully
+- **Not handling unsolicited messages** — when AutoPoll is active, the Core sends change notifications at any time. Your receive handler must process these correctly alongside response messages
 
 ---
 
 ## Quick Reference
 
-| Task | Command |
+| Task | Method |
 |---|---|
-| Set level | `INSTANCETAG set level 1 1 VALUE` |
-| Get level | `INSTANCETAG get level 1 1` |
-| Mute on | `INSTANCETAG set mute 1 1 true` |
-| Mute off | `INSTANCETAG set mute 1 1 false` |
-| Subscribe | `SUBSCRIBE INSTANCETAG ATTRIBUTE 1 1 TOKEN 0` |
+| Authenticate | `Logon` |
+| Get control value | `Control.Get` |
+| Set control value | `Control.Set` |
+| Create feedback group | `ChangeGroup.AddControl` |
+| Enable push feedback | `ChangeGroup.AutoPoll` |
+| Keepalive | `NoOp` (every 15s) |
 
-**Serial settings:** 115200 baud, 8N1, **LF terminator (0x0A)**
+**Connection:** TCP port 1710 to Core IP address, newline terminated JSON-RPC
 
-Need Tesira commands generated for your specific instance tags? AV-Command at [av-command.com](https://av-command.com) builds Tesira control code instantly.
+Need Q-SYS Named Control commands built for your specific design? AV-Command at [av-command.com](https://av-command.com) generates Q-SYS control code instantly.
 ---
 
 ## Related Guides
@@ -151,8 +181,8 @@ Need Tesira commands generated for your specific instance tags? AV-Command at [a
 - [NEC Display RS-232 Commands](/blog/nec-display-rs232-commands)
 - [Kramer Switcher RS-232 Commands — Protocol 2000 & 3000](/blog/kramer-switcher-rs232-commands)
 - [Crestron SIMPL+ Serial Control Guide](/blog/crestron-simpl-plus-serial-control)
-- [Biamp Tesira RS-232 and Telnet Control]- [QSC Q-SYS External Control Protocol](/blog/qsc-qsys-external-control)
-- [AMX NetLinx Serial Control Guide](/blog/amx-netlinx-serial-control)
+- [Biamp Tesira RS-232 and Telnet Control](/blog/biamp-tesira-rs232-commands)
+- [QSC Q-SYS External Control Protocol]- [AMX NetLinx Serial Control Guide](/blog/amx-netlinx-serial-control)
 - [RS-232 vs IP Control in Commercial AV](/blog/rs232-vs-ip-control)
 - [Crestron vs AMX vs Extron: Control System Comparison](/blog/crestron-vs-amx-vs-extron)
 
