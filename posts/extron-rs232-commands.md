@@ -8,8 +8,6 @@ tags: ["Extron", "RS-232", "SIS", "Matrix Switcher", "Crestron"]
 
 Extron's Simple Instruction Set (SIS) is one of the most integrator-friendly RS-232 protocols in commercial AV. Unlike Panasonic's STX/ETX framing or Sony's binary HEX protocol, Extron SIS commands are plain ASCII text you can type directly from a keyboard. Once you learn a handful of commands, they work across most Extron products.
 
-This guide covers serial port settings, the most commonly used SIS commands, matrix switcher routing, and Crestron SIMPL+ examples.
-
 ---
 
 ## Serial Port Settings
@@ -24,17 +22,11 @@ This guide covers serial port settings, the most commonly used SIS commands, mat
 | Cable Type | Straight-through |
 | Terminator | CR (0x0D) |
 
-**Note:** Extron responds with CR+LF after each command. Some newer products support higher baud rates — check your specific model. The 9600 8N1 default works across the entire product line.
-
 ---
 
 ## SIS Command Format
 
-Extron SIS commands are plain ASCII with a carriage return terminator. No special header or framing bytes required.
-
-Format: Command + CR
-
-The device responds with a status message followed by CR+LF. If an invalid command is sent, Extron returns an error code like E01 (invalid input number) or E13 (invalid command).
+Extron SIS commands are plain ASCII with a carriage return terminator. The device responds with a status message followed by CR+LF. If an invalid command is sent, Extron returns an error code like E01 (invalid input number) or E13 (invalid command).
 
 ---
 
@@ -42,167 +34,97 @@ The device responds with a status message followed by CR+LF. If an invalid comma
 
 | Function | Command |
 |---|---|
-| Power On | less-than sign + CR |
-| Power Off | greater-than sign + CR |
-| Query Power Status | I + CR |
-
-Note: The less-than and greater-than signs are the power on and off commands respectively. The I command returns full system status including power state, input selection, and firmware version.
+| Power On | `< + CR` |
+| Power Off | `> + CR` |
+| Query Status | `I + CR` |
 
 ---
 
 ## Input Switching
 
-For single-output switchers and scalers:
+Single-output switchers:
 
 | Function | Command |
 |---|---|
-| Switch to Input 1 | 1! + CR |
-| Switch to Input 2 | 2! + CR |
-| Switch to Input 3 | 3! + CR |
-| Switch to Input 4 | 4! + CR |
-| Query Current Input | I + CR |
+| Switch to Input 1 | `1! + CR` |
+| Switch to Input 2 | `2! + CR` |
+| Query Current Input | `I + CR` |
 
-For matrix switchers (tie input to output):
+Matrix switchers (tie input to output):
 
 | Function | Command |
 |---|---|
-| Tie Input 1 to Output 1 | 1*1! + CR |
-| Tie Input 2 to Output 3 | 2*3! + CR |
-| Tie Input 1 to All Outputs | 1*0! + CR |
-| Disconnect Output 2 | 0*2! + CR |
-| Query All Ties | 0LS + CR |
-
-The format for matrix routing is: Input Number + asterisk + Output Number + exclamation mark + CR
-
-The response confirms the tie: OUT1 IN1 VID
+| Tie Input 1 to Output 1 | `1*1! + CR` |
+| Tie Input 2 to Output 3 | `2*3! + CR` |
+| Tie Input 1 to All Outputs | `1*0! + CR` |
+| Disconnect Output 2 | `0*2! + CR` |
+| Query All Ties | `0LS + CR` |
 
 ---
 
-## Video Mute Control
+## Video Mute
 
 | Function | Command |
 |---|---|
-| Video Mute On | B + CR |
-| Video Mute Off | shift-B (capital B clears mute) |
-| Audio Mute On | Z + CR |
-| Audio Mute Off | shift-Z |
-
----
-
-## Status and Query Commands
-
-| Function | Command |
-|---|---|
-| System Status | I + CR |
-| Input Count | 2I + CR |
-| Output Count | 3I + CR |
-| Firmware Version | Q + CR |
-| Part Number | N + CR |
+| Video Mute On | `B + CR` |
+| Video Mute Off | `b + CR` (lowercase) |
+| Audio Mute On | `Z + CR` |
+| Audio Mute Off | `z + CR` (lowercase) |
 
 ---
 
 ## Crestron SIMPL+ Example
 
-For a single-output Extron switcher or scaler:
-
-DEFINE_CONSTANT
-  INTEGER MAX_INPUTS = 8
-
-STRING_PARAMETER SP_Input[8][6];
-SP_Input[1] = "1!\x0D";
-SP_Input[2] = "2!\x0D";
-SP_Input[3] = "3!\x0D";
-SP_Input[4] = "4!\x0D";
-
+```
 STRING_PARAMETER SP_PowerOn[3]  = "<\x0D";
 STRING_PARAMETER SP_PowerOff[3] = ">\x0D";
-STRING_PARAMETER SP_Status[3]   = "I\x0D";
+STRING_PARAMETER SP_Input1[4]   = "1!\x0D";
+STRING_PARAMETER SP_Input2[4]   = "2!\x0D";
 
-DIGITAL_INPUT PowerOn, PowerOff;
-INTEGER_INPUT InputSelect;
+DIGITAL_INPUT PowerOn, PowerOff, Input1, Input2;
 STRING_OUTPUT TX$;
 
 PUSH PowerOn  { TX$ = SP_PowerOn; }
 PUSH PowerOff { TX$ = SP_PowerOff; }
-
-CHANGE InputSelect
-{
-  IF (InputSelect >= 1 AND InputSelect <= 4)
-    TX$ = SP_Input[InputSelect];
-}
+PUSH Input1   { TX$ = SP_Input1; }
+PUSH Input2   { TX$ = SP_Input2; }
+```
 
 ---
 
-## AMX NetLinx Example
+## Common Mistakes
 
-For a matrix switcher, tying input to output:
-
-DEFINE_CONSTANT
-  CHAR STATUS_CMD[] = {'I',$0D}
-  CHAR POWER_ON[]   = {'<',$0D}
-  CHAR POWER_OFF[]  = {'>',$0D}
-
-DEFINE_FUNCTION sendTie(INTEGER nInput, INTEGER nOutput)
-{
-  STACK_VAR CHAR cmd[10];
-  cmd = "ITOA(nInput),'*',ITOA(nOutput),'!',$0D";
-  SEND_STRING dvSwitcher, cmd;
-}
-
-BUTTON_EVENT[dvTP, BTN_INPUT_1_OUT_1]
-{
-  PUSH: { sendTie(1, 1); }
-}
-
----
-
-## Common Gotchas
-
-- **Forgetting the CR terminator** — SIS commands require a carriage return. Without it the device waits for more input and never executes
-- **Using wrong cable** — Extron uses straight-through, not null modem. Pin 2 to pin 2, pin 3 to pin 3
-- **Matrix vs single-output syntax** — the exclamation mark routes to the single output on single-output devices. On matrix switchers you need the Input*Output! format
-- **Not reading the response** — Extron sends a response to every command. If your control system sends commands too fast without reading responses, the buffer fills and commands get dropped
-- **Front panel lockout** — some Extron products have a front panel lock mode that also blocks RS-232. Check the device menu if commands are not responding
-
----
-
-## Quick Reference
-
-| Task | Command |
-|---|---|
-| Power On | less-than + CR |
-| Power Off | greater-than + CR |
-| Select Input 1 | 1! + CR |
-| Select Input 2 | 2! + CR |
-| Matrix: In1 to Out1 | 1*1! + CR |
-| Matrix: In2 to Out3 | 2*3! + CR |
-| Video Mute | B + CR |
-| System Status | I + CR |
-
-**Serial settings:** 9600 baud, 8N1, no flow control, straight-through cable, CR terminator
-
----
-
-Always verify commands against your specific Extron model's documentation. The SIS command set is consistent across most products but some parameters vary by model.
-
+- **Forgetting the CR terminator** — without it the device waits and never executes
+- **Using wrong cable** — Extron uses straight-through, not null modem
+- **Not reading the response** — Extron ACKs every command. Send too fast and the buffer fills, dropping commands silently
+- **Front panel lockout** — some Extron products have a lock mode that also blocks RS-232
 ---
 
 ## Related Guides
 
 - [Panasonic Projector RS-232 Commands](/blog/panasonic-projector-rs232-commands)
-- [Extron RS-232 Control Guide](/blog/extron-rs232-commands)
-- [Sony BRAVIA Professional RS-232 Commands](/blog/sony-display-rs232-commands)
+- [Extron RS-232 Control Guide — SIS Protocol]- [Sony BRAVIA Professional RS-232 Commands](/blog/sony-display-rs232-commands)
 - [NEC Display RS-232 Commands](/blog/nec-display-rs232-commands)
-- [Kramer Switcher RS-232 Commands](/blog/kramer-switcher-rs232-commands)
+- [Kramer Switcher RS-232 Commands — Protocol 2000 & 3000](/blog/kramer-switcher-rs232-commands)
 - [Crestron SIMPL+ Serial Control Guide](/blog/crestron-simpl-plus-serial-control)
 - [Biamp Tesira RS-232 and Telnet Control](/blog/biamp-tesira-rs232-commands)
 - [QSC Q-SYS External Control Protocol](/blog/qsc-qsys-external-control)
 - [AMX NetLinx Serial Control Guide](/blog/amx-netlinx-serial-control)
 - [RS-232 vs IP Control in Commercial AV](/blog/rs232-vs-ip-control)
-- [Crestron vs AMX vs Extron Comparison](/blog/crestron-vs-amx-vs-extron)
+- [Crestron vs AMX vs Extron: Control System Comparison](/blog/crestron-vs-amx-vs-extron)
+
+---
+
+## Free RS-232 Tools
+
+Baud rate reference, device settings table, terminator guide, and DB9 pinout — all free, no signup required.
+
+[Open Free RS-232 Tools →](https://av-command.com/tools)
 
 ---
 
 ## Generate RS-232 Commands Instantly
 
-Need commands for a device not covered here? **AVCommand** generates RS-232 commands, serial port settings, and Crestron SIMPL+ code for hundreds of AV devices. [Try it free at av-command.com](https://av-command.com)
+Need exact command strings for a device not covered here? **[AV-Command](https://av-command.com)** includes free RS-232 troubleshooting checklists and a free tools reference — no signup required. The AI Assistant generates exact command strings, serial port settings, and Crestron SIMPL+ code for hundreds of devices instantly.
+
+[Try AV-Command Free — upgrade anytime for AI commands →](https://av-command.com)
