@@ -24,13 +24,13 @@ export default function App({ Component, pageProps }) {
         <meta name="theme-color" content="#00ff88" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="apple-mobile-web-app-title" content="AVCommand" />
+        <meta name="apple-mobile-web-app-title" content="AV-Command" />
         <meta name="description" content="AI-powered RS-232 command generator and serial control assistant for AV integrators" />
         <link rel="canonical" href={canonicalUrl} />
         <link rel="manifest" href="/manifest.json" />
         <link rel="icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/icons/icon-152.png" />
-        <title>AVCommand — AV Control Assistant</title>
+        <title>AV-Command — AV Control Assistant</title>
       </Head>
       <Component {...pageProps} />
       <Analytics />
