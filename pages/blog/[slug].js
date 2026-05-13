@@ -85,10 +85,13 @@ function renderMarkdown(content) {
         if (part.startsWith('`') && part.endsWith('`') && part.length > 2) return <code key={pi} style={{ background: 'rgba(0,255,136,0.1)', color: '#00ff88', padding: '1px 6px', borderRadius: 4, fontSize: '0.9em', fontFamily: 'Courier New, monospace' }}>{part.slice(1, -1)}</code>;
         const linkMatch = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
         if (linkMatch) {
-          const isExternal = linkMatch[2].startsWith('http');
-          return isExternal
-            ? <a key={pi} href={linkMatch[2]} target="_blank" rel="noopener noreferrer" style={{ color: '#00ff88', textDecoration: 'underline' }}>{linkMatch[1]}</a>
-            : <Link key={pi} href={linkMatch[2]} style={{ color: '#00ff88', textDecoration: 'underline' }}>{linkMatch[1]}</Link>;
+          const linkText = linkMatch[1];
+          const linkHref = linkMatch[2];
+          const isExternal = linkHref.startsWith('http');
+          if (isExternal) {
+            return <a key={pi} href={linkHref} target="_blank" rel="noopener noreferrer" style={{ color: '#00ff88', textDecoration: 'underline' }}>{linkText}</a>;
+          }
+          return <Link key={pi} href={linkHref} style={{ color: '#00ff88', textDecoration: 'underline' }}>{linkText}</Link>;
         }
         return part;
       });
