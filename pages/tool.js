@@ -44,7 +44,7 @@ function ToolsApp() {
     { mfr: 'Barco', model: 'Projectors', baud: 19200, parity: 'N', data: 8, stop: 1, flow: 'None', cable: 'Straight-through', term: 'CR/LF' },
     { mfr: 'Sharp', model: 'AQUOS Commercial', baud: 9600, parity: 'N', data: 8, stop: 1, flow: 'None', cable: 'Straight-through', term: 'CR (0x0D)' },
     { mfr: 'Philips', model: 'Professional Displays', baud: 9600, parity: 'N', data: 8, stop: 1, flow: 'None', cable: 'Straight-through', term: 'CR (0x0D)' },
-    { mfr: 'Epson', model: 'Business Projectors', baud: 9600, parity: 'N', data: 8, stop: 1, flow: 'None', cable: 'Straight-through', term: ':' colon prefix' },
+    { mfr: 'Epson', model: 'Business Projectors', baud: 9600, parity: 'N', data: 8, stop: 1, flow: 'None', cable: 'Straight-through', term: 'Colon prefix' },
     { mfr: 'Optoma', model: 'Projectors', baud: 9600, parity: 'N', data: 8, stop: 1, flow: 'None', cable: 'Straight-through', term: 'CR (0x0D)' },
     { mfr: 'BenQ', model: 'Projectors', baud: 115200, parity: 'N', data: 8, stop: 1, flow: 'None', cable: 'Straight-through', term: 'CR (0x0D)' },
   ]
