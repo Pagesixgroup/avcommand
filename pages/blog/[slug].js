@@ -68,7 +68,7 @@ function renderMarkdown(content) {
           {items.map((item, li) => (
             <li key={li} style={{ fontSize: 14, color: '#888', lineHeight: 1.65, display: 'flex', gap: 10 }}>
               <span style={{ color: '#00ff88', flexShrink: 0 }}>▸</span>
-              <span>{item}</span>
+              <span>{renderInline(item)}</span>
             </li>
           ))}
         </ul>
@@ -79,10 +79,17 @@ function renderMarkdown(content) {
     if (line.trim() === '') { i++; continue; }
 
     const renderInline = (text) => {
-      const parts = String(text).split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
+      const parts = String(text).split(/(\*\*[^*]+\*\*|`[^`]+`|\[[^\]]+\]\([^)]+\))/g);
       return parts.map((part, pi) => {
         if (part.startsWith('**') && part.endsWith('**')) return <strong key={pi} style={{ color: '#fff' }}>{part.slice(2, -2)}</strong>;
         if (part.startsWith('`') && part.endsWith('`') && part.length > 2) return <code key={pi} style={{ background: 'rgba(0,255,136,0.1)', color: '#00ff88', padding: '1px 6px', borderRadius: 4, fontSize: '0.9em', fontFamily: 'Courier New, monospace' }}>{part.slice(1, -1)}</code>;
+        const linkMatch = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+        if (linkMatch) {
+          const isExternal = linkMatch[2].startsWith('http');
+          return isExternal
+            ? <a key={pi} href={linkMatch[2]} target="_blank" rel="noopener noreferrer" style={{ color: '#00ff88', textDecoration: 'underline' }}>{linkMatch[1]}</a>
+            : <Link key={pi} href={linkMatch[2]} style={{ color: '#00ff88', textDecoration: 'underline' }}>{linkMatch[1]}</Link>;
+        }
         return part;
       });
     };
