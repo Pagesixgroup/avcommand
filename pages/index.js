@@ -326,7 +326,7 @@ export default function AVCommandAssistant() {
   const [messages, setMessages] = useState([
     {
       role: "assistant",
-      content: "AVCommand online. I can generate RS-232 command strings, look up serial settings for specific devices, build Crestron SIMPL+ or AMX NetLinx control snippets, and help troubleshoot serial control issues.\n\nTell me the device make/model and what you need to control."
+      content: "AV-Command online. I can generate RS-232 command strings, look up serial settings for specific devices, build Crestron SIMPL+ or AMX NetLinx control snippets, and help troubleshoot serial control issues.\n\nTell me the device make/model and what you need to control."
     }
   ]);
   const [input, setInput] = useState("");
@@ -405,7 +405,7 @@ export default function AVCommandAssistant() {
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
           <div style={{ width: 36, height: 36, borderRadius: 8, background: "rgba(0,255,136,0.1)", border: "1px solid rgba(0,255,136,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>⚡</div>
           <div>
-            <div style={{ fontSize: 14, fontWeight: 700, letterSpacing: 3, color: "#fff", textTransform: "uppercase" }}>AVCommand</div>
+            <div style={{ fontSize: 14, fontWeight: 700, letterSpacing: 3, color: "#fff", textTransform: "uppercase" }}>AV-Command</div>
             <div style={{ fontSize: 9, letterSpacing: 3, color: "#00ff88", textTransform: "uppercase", opacity: 0.7 }}>RS-232 · Serial Control · AV Integration</div>
           </div>
         </div>
@@ -553,7 +553,7 @@ export default function AVCommandAssistant() {
           <a href="mailto:hello@av-command.com" style={{ fontSize: 9, letterSpacing: 2, color: "#444", textDecoration: "none", textTransform: "uppercase", fontFamily: "'Courier New', monospace" }}>Contact</a>
           <a href="/landing.html" target="_blank" style={{ fontSize: 9, letterSpacing: 2, color: "#444", textDecoration: "none", textTransform: "uppercase", fontFamily: "'Courier New', monospace" }}>About</a>
         </div>
-        <div style={{ fontSize: 9, letterSpacing: 2, color: "#222", textTransform: "uppercase", fontFamily: "'Courier New', monospace" }}>⚡ AVCommand</div>
+        <div style={{ fontSize: 9, letterSpacing: 2, color: "#222", textTransform: "uppercase", fontFamily: "'Courier New', monospace" }}>⚡ AV-Command</div>
       </div>
     </div>
   );
