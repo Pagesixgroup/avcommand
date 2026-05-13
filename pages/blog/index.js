@@ -6,7 +6,7 @@ export default function BlogIndex({ posts }) {
   return (
     <div style={{ minHeight: '100vh', background: '#080808', color: '#e0e0e0', fontFamily: "'Courier New', monospace" }}>
       <Head>
-        <title>AV Integration Blog — AVCommand</title>
+        <title>AV Integration Blog — AV-Command</title>
         <meta name="description" content="RS-232 command references, serial control guides, and AV integration tips for professional AV integrators." />
       </Head>
 
@@ -22,7 +22,7 @@ export default function BlogIndex({ posts }) {
       <nav style={{ borderBottom: '1px solid #1a1a1a', padding: '14px 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#0a0a0a', position: 'sticky', top: 0, zIndex: 10 }}>
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{ width: 32, height: 32, borderRadius: 7, background: 'rgba(0,255,136,0.1)', border: '1px solid rgba(0,255,136,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15 }}>⚡</div>
-          <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: 3, color: '#fff', textTransform: 'uppercase' }}>AVCommand</span>
+          <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: 3, color: '#fff', textTransform: 'uppercase' }}>AV-Command</span>
         </Link>
         <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
           <Link href="/" style={{ fontSize: 10, letterSpacing: 2, color: '#555', textTransform: 'uppercase' }}>App</Link>
