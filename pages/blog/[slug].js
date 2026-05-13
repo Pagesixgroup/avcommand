@@ -98,14 +98,14 @@ export default function BlogPost({ post }) {
   return (
     <div style={{ minHeight: '100vh', background: '#080808', color: '#e0e0e0', fontFamily: 'Courier New, monospace' }}>
       <Head>
-        <title>{post.title} — AVCommand</title>
+        <title>{post.title} — AV-Command</title>
         <meta name="description" content={post.description} />
       </Head>
       <style>{`body { margin: 0; } a { text-decoration: none; }`}</style>
       <nav style={{ borderBottom: '1px solid #1a1a1a', padding: '14px 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#0a0a0a', position: 'sticky', top: 0, zIndex: 10 }}>
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{ width: 32, height: 32, borderRadius: 7, background: 'rgba(0,255,136,0.1)', border: '1px solid rgba(0,255,136,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15 }}>⚡</div>
-          <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: 3, color: '#fff', textTransform: 'uppercase' }}>AVCommand</span>
+          <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: 3, color: '#fff', textTransform: 'uppercase' }}>AV-Command</span>
         </Link>
         <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
           <Link href="/blog" style={{ fontSize: 10, letterSpacing: 2, color: '#555', textTransform: 'uppercase' }}>← Blog</Link>
@@ -122,9 +122,9 @@ export default function BlogPost({ post }) {
         <div style={{ fontSize: 10, color: '#333', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 40, paddingBottom: 24, borderBottom: '1px solid #1a1a1a' }}>{post.date}</div>
         <div>{renderMarkdown(post.content)}</div>
         <div style={{ marginTop: 60, padding: '28px 32px', background: 'rgba(0,255,136,0.04)', border: '1px solid rgba(0,255,136,0.15)', borderRadius: 12 }}>
-          <div style={{ fontSize: 10, letterSpacing: 3, color: '#00ff88', textTransform: 'uppercase', marginBottom: 8 }}>⚡ AVCommand Pro</div>
+          <div style={{ fontSize: 10, letterSpacing: 3, color: '#00ff88', textTransform: 'uppercase', marginBottom: 8 }}>⚡ AV-Command Pro</div>
           <div style={{ fontSize: 15, color: '#fff', marginBottom: 8, fontWeight: 600 }}>Need commands for a different device?</div>
-          <div style={{ fontSize: 13, color: '#666', lineHeight: 1.65, marginBottom: 20 }}>AVCommand generates RS-232 command strings, serial port settings, and Crestron SIMPL+ code for hundreds of AV devices instantly.</div>
+          <div style={{ fontSize: 13, color: '#666', lineHeight: 1.65, marginBottom: 20 }}>AV-Command generates RS-232 command strings, serial port settings, and Crestron SIMPL+ code for hundreds of AV devices instantly.</div>
           <Link href="https://avcommand.gumroad.com/l/AV-Command-Pro" target="_blank" style={{ display: 'inline-block', padding: '10px 22px', background: '#00ff88', color: '#000', borderRadius: 8, fontSize: 11, letterSpacing: 2, textTransform: 'uppercase', fontWeight: 700 }}>Get Pro Access — $5.99/mo →</Link>
         </div>
       </article>
