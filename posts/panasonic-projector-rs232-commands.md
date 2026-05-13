@@ -1,20 +1,16 @@
 ---
-title: "Panasonic Projector RS-232 Commands: The Complete Control Guide"
+title: "Panasonic Projector RS-232 Commands: Complete Control Guide"
 slug: "panasonic-projector-rs232-commands"
-date: "April 30, 2026"
-description: "Complete RS-232 command reference for Panasonic projectors including serial port settings, power control, input switching, and Crestron SIMPL+ examples."
-tags: ["Panasonic", "RS-232", "Projector", "Crestron"]
+date: "May 1, 2026"
+description: "Complete RS-232 control guide for Panasonic PT series projectors. Serial port settings, power commands, input switching, shutter control, and Crestron SIMPL+ examples."
+tags: ["Panasonic", "Projector", "RS-232", "Crestron", "AMX"]
 ---
 
-If you've ever spent 20 minutes hunting through a Panasonic projector manual just to find the power-on command, this guide is for you.
-
-Panasonic projectors are some of the most widely deployed in commercial AV. Their RS-232 protocol has a few quirks that catch integrators off guard — especially the STX/ETX framing and the post-power-on delay requirement.
+Panasonic PT series projectors use a well-documented RS-232 protocol with STX/ETX framing. Once you understand the packet structure, the same format works across the entire PT series — PT-RZ, PT-MZ, PT-VZ, and most other commercial Panasonic models.
 
 ---
 
 ## Serial Port Settings
-
-Before sending a single command, get these right. Mismatched settings are the number one cause of RS-232 failures.
 
 | Parameter | Value |
 |---|---|
@@ -23,35 +19,33 @@ Before sending a single command, get these right. Mismatched settings are the nu
 | Parity | None |
 | Stop Bits | 1 |
 | Flow Control | None |
-| Cable Type | Straight-through (not null modem) |
+| Cable Type | Straight-through |
 
 ---
 
 ## Command Format
 
-This is where most integrators get tripped up. Panasonic RS-232 commands use STX/ETX framing — not a simple CR or LF terminator like most other AV devices.
+Panasonic uses STX/ETX framing:
 
-The format is: STX + ID + Command + ETX
+`0x02` + Command + `0x03`
 
-Where STX is 0x02, ID is ADZZ (all projectors), and ETX is 0x03.
-
-So the Power On command looks like this in ASCII: .ADZZ;PON.
-
-Or in hex: 02 41 44 5A 5A 3B 50 4F 4E 03
-
-**Important:** If you are used to sending PON with a carriage return to a Sony or NEC display, that will not work here. The STX and ETX bytes are required.
+STX (0x02) starts the command, ETX (0x03) ends it. The command itself is plain ASCII text between these bytes.
 
 ---
 
 ## Power Control
 
-| Function | Command (hex) |
+| Function | Command |
 |---|---|
-| Power On | 02 41 44 5A 5A 3B 50 4F 4E 03 |
-| Power Off | 02 41 44 5A 5A 3B 50 4F 46 03 |
-| Query Power Status | 02 41 44 5A 5A 3B 51 50 57 03 |
+| Power On | `0x02 PON 0x03` |
+| Power Off | `0x02 POF 0x03` |
+| Query Power | `0x02 QPW 0x03` |
 
-**Critical timing note:** After sending Power On, do NOT send any other commands for at least 10 to 30 seconds while the lamp warms up. Always use QPW (Query Power) to confirm the projector is fully on before proceeding.
+Power On response: `0x02 PON 0x03`
+Power query response when on: `0x02 001 0x03`
+Power query response when off: `0x02 000 0x03`
+
+Wait at least 30 seconds after Power On before sending other commands while the lamp warms up.
 
 ---
 
@@ -59,81 +53,85 @@ Or in hex: 02 41 44 5A 5A 3B 50 4F 4E 03
 
 | Function | Command |
 |---|---|
-| HDMI 1 | ADZZ;IIS:HD1 (wrapped in STX/ETX) |
-| HDMI 2 | ADZZ;IIS:HD2 (wrapped in STX/ETX) |
-| DVI | ADZZ;IIS:DVI (wrapped in STX/ETX) |
-| VGA/RGB | ADZZ;IIS:RG1 (wrapped in STX/ETX) |
-| SDI | ADZZ;IIS:SD1 (wrapped in STX/ETX) |
-| Query Input | ADZZ;QIN (wrapped in STX/ETX) |
+| HDMI 1 | `0x02 IIS:HD1 0x03` |
+| HDMI 2 | `0x02 IIS:HD2 0x03` |
+| DisplayPort | `0x02 IIS:DP1 0x03` |
+| DVI | `0x02 IIS:DV1 0x03` |
+| VGA (Computer 1) | `0x02 IIS:RG1 0x03` |
+| Query Input | `0x02 QIN 0x03` |
 
 ---
 
-## Shutter and Blank Control
+## Shutter Control
 
 | Function | Command |
 |---|---|
-| Blank On (Shutter Close) | ADZZ;OSH:1 (wrapped in STX/ETX) |
-| Blank Off (Shutter Open) | ADZZ;OSH:0 (wrapped in STX/ETX) |
-| Query Shutter | ADZZ;QSH (wrapped in STX/ETX) |
+| Shutter Close (blank) | `0x02 OSH:1 0x03` |
+| Shutter Open | `0x02 OSH:0 0x03` |
+| Query Shutter | `0x02 QSH 0x03` |
 
 ---
 
-## Audio Control
+## Freeze
 
 | Function | Command |
 |---|---|
-| Mute On | ADZZ;OAM:1 (wrapped in STX/ETX) |
-| Mute Off | ADZZ;OAM:0 (wrapped in STX/ETX) |
-| Volume Up | ADZZ;VU (wrapped in STX/ETX) |
-| Volume Down | ADZZ;VD (wrapped in STX/ETX) |
+| Freeze On | `0x02 OFZ:1 0x03` |
+| Freeze Off | `0x02 OFZ:0 0x03` |
 
 ---
 
-## Crestron SIMPL+ Notes
+## Crestron SIMPL+ Example
 
-In SIMPL+, define your strings with the STX and ETX bytes explicitly using hex notation. Set your COM port to 9600 baud, 8 data bits, no parity, 1 stop bit, and no flow control. Send each command as a String_Output and wait for the acknowledgment response before sending the next command.
+```
+STRING_PARAMETER SP_PowerOn[6]  = "\x02PON\x03";
+STRING_PARAMETER SP_PowerOff[6] = "\x02POF\x03";
+STRING_PARAMETER SP_HDMI1[10]   = "\x02IIS:HD1\x03";
+STRING_PARAMETER SP_Query[6]    = "\x02QPW\x03";
 
----
+DIGITAL_INPUT PowerOn, PowerOff, Input_HDMI1;
+STRING_OUTPUT TX$;
 
-## AMX NetLinx Notes
-
-In NetLinx, define your constants using the $02 and $03 syntax for the STX and ETX bytes. Use SEND_STRING to transmit to the device port. Set the baud rate in your DEFINE_DEVICE section to 9600,8,1,N.
-
----
-
-## Common Gotchas
-
-- **Forgetting STX/ETX framing** — PON alone will not work. The command must be wrapped in 0x02 and 0x03
-- **Sending commands too soon after power on** — the projector ignores all commands for 10 to 60 seconds after the lamp starts lighting
-- **Not waiting for acknowledgment** — Panasonic returns a 3-byte ACK for each command. Send commands back to back and some will get dropped
-- **Wrong cable type** — use a straight-through cable, not a null modem cable
-- **RS-232 not enabled in projector menu** — some models default to IR-only control. Enable RS-232C in the on-screen menu
-- **Case sensitivity** — PON works. pon does not
+PUSH PowerOn  { TX$ = SP_PowerOn; }
+PUSH PowerOff { TX$ = SP_PowerOff; }
+PUSH Input_HDMI1 { TX$ = SP_HDMI1; }
+```
 
 ---
 
-## Need Commands for a Different Device?
+## Common Mistakes
 
-AVCommand generates RS-232 command strings, serial port settings, and Crestron SIMPL+ code for hundreds of AV devices instantly. Describe what you need in plain English and get exact commands ready to use.
-
+- **Forgetting STX/ETX** — sending plain ASCII without the framing bytes results in no response
+- **Not waiting after power on** — send commands too soon and the projector ignores them while the lamp starts
+- **Wrong input code** — input codes vary slightly between PT series models. Always verify against your specific model's RS-232 documentation
+- **RS-232 not enabled** — some Panasonic models require enabling serial control in the projector's menu under Network/Serial settings
 ---
 
 ## Related Guides
 
-- [Panasonic Projector RS-232 Commands](/blog/panasonic-projector-rs232-commands)
-- [Extron RS-232 Control Guide](/blog/extron-rs232-commands)
+- [Panasonic Projector RS-232 Commands]- [Extron RS-232 Control Guide — SIS Protocol](/blog/extron-rs232-commands)
 - [Sony BRAVIA Professional RS-232 Commands](/blog/sony-display-rs232-commands)
 - [NEC Display RS-232 Commands](/blog/nec-display-rs232-commands)
-- [Kramer Switcher RS-232 Commands](/blog/kramer-switcher-rs232-commands)
+- [Kramer Switcher RS-232 Commands — Protocol 2000 & 3000](/blog/kramer-switcher-rs232-commands)
 - [Crestron SIMPL+ Serial Control Guide](/blog/crestron-simpl-plus-serial-control)
 - [Biamp Tesira RS-232 and Telnet Control](/blog/biamp-tesira-rs232-commands)
 - [QSC Q-SYS External Control Protocol](/blog/qsc-qsys-external-control)
 - [AMX NetLinx Serial Control Guide](/blog/amx-netlinx-serial-control)
 - [RS-232 vs IP Control in Commercial AV](/blog/rs232-vs-ip-control)
-- [Crestron vs AMX vs Extron Comparison](/blog/crestron-vs-amx-vs-extron)
+- [Crestron vs AMX vs Extron: Control System Comparison](/blog/crestron-vs-amx-vs-extron)
+
+---
+
+## Free RS-232 Tools
+
+Baud rate reference, device settings table, terminator guide, and DB9 pinout — all free, no signup required.
+
+[Open Free RS-232 Tools →](https://av-command.com/tools)
 
 ---
 
 ## Generate RS-232 Commands Instantly
 
-Need commands for a device not covered here? **AVCommand** generates RS-232 commands, serial port settings, and Crestron SIMPL+ code for hundreds of AV devices. [Try it free at av-command.com](https://av-command.com)
+Need exact command strings for a device not covered here? **[AV-Command](https://av-command.com)** includes free RS-232 troubleshooting checklists and a free tools reference — no signup required. The AI Assistant generates exact command strings, serial port settings, and Crestron SIMPL+ code for hundreds of devices instantly.
+
+[Try AV-Command Free — upgrade anytime for AI commands →](https://av-command.com)
