@@ -140,4 +140,34 @@ Use GATHER with 0x0A as the terminator to collect complete response lines. Parse
 
 **Serial settings:** 115200 baud, 8N1, **LF terminator (0x0A)**
 
-Need Tesira commands generated for your specific instance tags? AVCommand at av-command.com builds Tesira control code instantly.
+Need Tesira commands generated for your specific instance tags? AV-Command at [av-command.com](https://av-command.com) builds Tesira control code instantly.
+---
+
+## Related Guides
+
+- [Panasonic Projector RS-232 Commands](/blog/panasonic-projector-rs232-commands)
+- [Extron RS-232 Control Guide — SIS Protocol](/blog/extron-rs232-commands)
+- [Sony BRAVIA Professional RS-232 Commands](/blog/sony-display-rs232-commands)
+- [NEC Display RS-232 Commands](/blog/nec-display-rs232-commands)
+- [Kramer Switcher RS-232 Commands — Protocol 2000 & 3000](/blog/kramer-switcher-rs232-commands)
+- [Crestron SIMPL+ Serial Control Guide](/blog/crestron-simpl-plus-serial-control)
+- [Biamp Tesira RS-232 and Telnet Control]- [QSC Q-SYS External Control Protocol](/blog/qsc-qsys-external-control)
+- [AMX NetLinx Serial Control Guide](/blog/amx-netlinx-serial-control)
+- [RS-232 vs IP Control in Commercial AV](/blog/rs232-vs-ip-control)
+- [Crestron vs AMX vs Extron: Control System Comparison](/blog/crestron-vs-amx-vs-extron)
+
+---
+
+## Free RS-232 Tools
+
+Baud rate reference, device settings table, terminator guide, and DB9 pinout — all free, no signup required.
+
+[Open Free RS-232 Tools →](https://av-command.com/tools)
+
+---
+
+## Generate RS-232 Commands Instantly
+
+Need exact command strings for a device not covered here? **[AV-Command](https://av-command.com)** includes free RS-232 troubleshooting checklists and a free tools reference — no signup required. The AI Assistant generates exact command strings, serial port settings, and Crestron SIMPL+ code for hundreds of devices instantly.
+
+[Try AV-Command Free — upgrade anytime for AI commands →](https://av-command.com)
