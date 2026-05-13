@@ -10,6 +10,42 @@ function renderMarkdown(content) {
   let key = 0;
   let i = 0;
 
+  const renderInline = (text) => {
+    const result = [];
+    const pattern = /(\*\*[^*]+\*\*|`[^`]+`|\[[^\]]+\]\([^)]+\))/g;
+    const str = String(text);
+    let lastIndex = 0;
+    let match;
+    let counter = 0;
+    while ((match = pattern.exec(str)) !== null) {
+      if (match.index > lastIndex) {
+        result.push(str.slice(lastIndex, match.index));
+      }
+      const token = match[0];
+      const tokenKey = 'tok' + (counter++);
+      if (token.startsWith('**') && token.endsWith('**')) {
+        result.push(<strong key={tokenKey} style={{ color: '#fff' }}>{token.slice(2, -2)}</strong>);
+      } else if (token.startsWith('`') && token.endsWith('`') && token.length > 2) {
+        result.push(<code key={tokenKey} style={{ background: 'rgba(0,255,136,0.1)', color: '#00ff88', padding: '1px 6px', borderRadius: 4, fontSize: '0.9em', fontFamily: 'Courier New, monospace' }}>{token.slice(1, -1)}</code>);
+      } else {
+        const bracketEnd = token.indexOf('](');
+        const linkLabel = token.slice(1, bracketEnd);
+        const linkUrl = token.slice(bracketEnd + 2, -1);
+        const linkSty = { color: '#00ff88', textDecoration: 'underline' };
+        if (linkUrl.startsWith('http')) {
+          result.push(<a key={tokenKey} href={linkUrl} target="_blank" rel="noopener noreferrer" style={linkSty}>{linkLabel}</a>);
+        } else {
+          result.push(<Link key={tokenKey} href={linkUrl} style={linkSty}>{linkLabel}</Link>);
+        }
+      }
+      lastIndex = match.index + token.length;
+    }
+    if (lastIndex < str.length) {
+      result.push(str.slice(lastIndex));
+    }
+    return result;
+  };
+
   while (i < lines.length) {
     const line = String(lines[i] || '');
 
@@ -78,42 +114,6 @@ function renderMarkdown(content) {
     }
 
     if (line.trim() === '') { i++; continue; }
-
-    const renderInline = (text) => {
-      const result = [];
-      const pattern = /(\*\*[^*]+\*\*|`[^`]+`|\[[^\]]+\]\([^)]+\))/g;
-      const str = String(text);
-      let lastIndex = 0;
-      let match;
-      let counter = 0;
-      while ((match = pattern.exec(str)) !== null) {
-        if (match.index > lastIndex) {
-          result.push(str.slice(lastIndex, match.index));
-        }
-        const token = match[0];
-        const tokenKey = 'tok' + (counter++);
-        if (token.startsWith('**') && token.endsWith('**')) {
-          result.push(<strong key={tokenKey} style={{ color: '#fff' }}>{token.slice(2, -2)}</strong>);
-        } else if (token.startsWith('`') && token.endsWith('`') && token.length > 2) {
-          result.push(<code key={tokenKey} style={{ background: 'rgba(0,255,136,0.1)', color: '#00ff88', padding: '1px 6px', borderRadius: 4, fontSize: '0.9em', fontFamily: 'Courier New, monospace' }}>{token.slice(1, -1)}</code>);
-        } else {
-          const bracketEnd = token.indexOf('](');
-          const linkLabel = token.slice(1, bracketEnd);
-          const linkUrl = token.slice(bracketEnd + 2, -1);
-          const linkSty = { color: '#00ff88', textDecoration: 'underline' };
-          if (linkUrl.startsWith('http')) {
-            result.push(<a key={tokenKey} href={linkUrl} target="_blank" rel="noopener noreferrer" style={linkSty}>{linkLabel}</a>);
-          } else {
-            result.push(<Link key={tokenKey} href={linkUrl} style={linkSty}>{linkLabel}</Link>);
-          }
-        }
-        lastIndex = match.index + token.length;
-      }
-      if (lastIndex < str.length) {
-        result.push(str.slice(lastIndex));
-      }
-      return result;
-    };
 
     elements.push(<p key={key++} style={{ fontSize: 14, color: '#888', lineHeight: 1.8, marginBottom: 16 }}>{renderInline(line)}</p>);
     i++;
