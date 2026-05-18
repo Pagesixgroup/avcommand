@@ -20,7 +20,6 @@ export default async function handler(req, res) {
       body: new URLSearchParams({
         product_id: "6MChWDSmBSv6z39ynQDJQA==",
         license_key: licenseKey.trim(),
-        access_token: process.env.GUMROAD_ACCESS_TOKEN,
         increment_uses_count: "false",
       }),
     });
@@ -36,10 +35,11 @@ export default async function handler(req, res) {
     }
 
   } catch (err) {
+    console.error("License check error:", err);
     return res.status(500).json({ error: "License verification failed" });
   }
 
-  const SYSTEM_PROMPT = `You are AVCommand, an expert AV systems control assistant for professional AV integrators and IT staff. You have deep knowledge of:
+  const SYSTEM_PROMPT = `You are AV-Command, an expert AV systems control assistant for professional AV integrators and IT staff. You have deep knowledge of:
 
 - RS-232 serial control protocols and command strings for professional AV equipment
 - Manufacturers including Crestron, Extron, AMX, Biamp, QSC, Shure, Kramer, Atlona, Sony, Panasonic, Epson, NEC, Sharp, Christie, Barco, Cisco, Poly, Logitech, and many more
@@ -68,7 +68,7 @@ Be concise but thorough. Use technical language appropriate for professional AV 
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "claude-haiku-4-5-20251001",
+        model: "claude-3-5-sonnet-20241022",
         max_tokens: 1000,
         system: SYSTEM_PROMPT,
         messages,
@@ -85,6 +85,7 @@ Be concise but thorough. Use technical language appropriate for professional AV 
     return res.status(200).json({ reply });
 
   } catch (err) {
+    console.error("API route error:", err);
     return res.status(500).json({ error: "Internal server error" });
   }
 }
